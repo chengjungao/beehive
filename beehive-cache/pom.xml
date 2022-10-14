@@ -7,4 +7,7 @@
   </parent>
   <artifactId>beehive-cache</artifactId>
   <packaging>pom</packaging>
+  <modules>
+  	<module>beehive-cache-common</module>
+  </modules>
 </project>
