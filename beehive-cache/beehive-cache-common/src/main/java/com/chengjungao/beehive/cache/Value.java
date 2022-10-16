@@ -5,7 +5,7 @@ package com.chengjungao.beehive.cache;
  * @author wolf
  *
  */
-public interface Value {
+public interface Value<T> {
 	
 	public void readFrom(byte[] values); 
 	

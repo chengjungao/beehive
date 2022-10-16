@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.StringCodec;
+import org.redisson.client.codec.ByteArrayCodec;
 import org.redisson.config.Config;
 import org.redisson.config.ReadMode;
 
@@ -14,7 +14,7 @@ public class RedisFactory {
 	
 	private static void registe(RedisConfig redisConfig) {
 		Config config = new Config();
-		config.setCodec(StringCodec.INSTANCE);
+		config.setCodec(ByteArrayCodec.INSTANCE);
 		config.useClusterServers()
 	    .addNodeAddress(redisConfig.getNodeAddress())
 	    .setReadMode(ReadMode.SLAVE)

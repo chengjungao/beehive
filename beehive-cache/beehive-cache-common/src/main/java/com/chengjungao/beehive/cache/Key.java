@@ -5,7 +5,9 @@ package com.chengjungao.beehive.cache;
  * @author wolf
  *
  */
-public interface Key {
+public interface Key<T> {
+	
+	
 
 	/**
 	 * 
@@ -18,4 +20,10 @@ public interface Key {
 	 * @return
 	 */
 	public String equals();
+
+	/**
+	 * 
+	 * @return
+	 */
+	public T getDatum();
 }

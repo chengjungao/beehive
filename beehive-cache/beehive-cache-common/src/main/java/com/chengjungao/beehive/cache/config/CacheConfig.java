@@ -8,5 +8,35 @@ public class CacheConfig {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public int getMaxWaitedRefreshSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getRefreshAfterWriteMs() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getExpireAfterAccessMs() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getRollbackRefreshMs() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getRefreshIntervalMs() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public String getBusiness() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 		
 }
