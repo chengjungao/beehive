@@ -28,6 +28,30 @@ public final class CacheStats {
     this.totalLoadTime = new AtomicLong(0);
     this.evictionCount = new AtomicLong(0);
   }
+  
+  public void hitCountIncr() {
+	  this.hitCount.incrementAndGet();
+  }
+  
+  public void missCountIncr() {
+	  this.missCount.incrementAndGet();
+  }
+  
+  public void loadSuccessCountIncr() {
+	  this.loadSuccessCount.incrementAndGet();
+  }
+  
+  public void loadExceptionCountIncr() {
+	  this.loadExceptionCount.incrementAndGet();
+  }
+  
+  public void totalLoadTimeIncr(long time) {
+	  this.totalLoadTime.addAndGet(time);
+  }
+  
+  public void evictionCountIncr() {
+	  this.evictionCount.incrementAndGet();
+  }
 
   /**
    * Returns the number of times {@link Cache} lookup methods have returned either a cached or

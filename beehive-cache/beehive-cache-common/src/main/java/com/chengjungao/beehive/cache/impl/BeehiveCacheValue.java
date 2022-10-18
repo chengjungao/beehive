@@ -2,11 +2,18 @@ package com.chengjungao.beehive.cache.impl;
 
 import com.chengjungao.beehive.cache.Value;
 
-public class BeehiveCacheValue<V> implements Value<V> {
-	private V datum;
+public class BeehiveCacheValue<K,V> implements Value<V> {
+	private static final long serialVersionUID = 1L;
+	private K key;
+	private V value;
 	
-	public BeehiveCacheValue(V datum) {
-		this.datum = datum;
+	public BeehiveCacheValue() {
+		super();
+	}
+
+	public BeehiveCacheValue(K key, V value) {
+		this.key = key;
+		this.value = value;
 	}
 
 	@Override

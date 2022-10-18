@@ -8,9 +8,14 @@
   <artifactId>beehive-cache-common</artifactId>
   <dependencies>
   	<dependency>
-	   <groupId>org.redisson</groupId>
-	   <artifactId>redisson</artifactId>
-	   <version>3.17.7</version>
+	    <groupId>org.redisson</groupId>
+	    <artifactId>redisson</artifactId>
+	    <version>3.17.7</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.alibaba.fastjson2</groupId>
+	    <artifactId>fastjson2</artifactId>
+	    <version>2.0.15</version>
 	</dependency>  
   </dependencies>
   
