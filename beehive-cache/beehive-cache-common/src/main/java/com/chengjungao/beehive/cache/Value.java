@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @author wolf
  *
  */
-public interface Value<T> extends Serializable {
+public interface Value<K,T> extends Serializable {
 	
 	public void readFrom(byte[] values); 
 	

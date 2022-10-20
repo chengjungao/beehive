@@ -1,9 +1,5 @@
 package com.chengjungao.beehive.cache;
 
-import org.redisson.api.RedissonClient;
-
-import com.chengjungao.beehive.cache.config.CacheConfig;
-
 /**
  * 
  * @author wolf
@@ -18,7 +14,7 @@ public interface Cache<K,V> {
 	 * @param k
 	 * @return
 	 */
-	public Value<V> get(Key<K> key) throws Exception ;
+	public Value<K,V> get(Key<K> key) throws Exception ;
 	
 	/**
 	 * 

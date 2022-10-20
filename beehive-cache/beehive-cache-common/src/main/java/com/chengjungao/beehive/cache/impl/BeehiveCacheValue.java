@@ -2,7 +2,7 @@ package com.chengjungao.beehive.cache.impl;
 
 import com.chengjungao.beehive.cache.Value;
 
-public class BeehiveCacheValue<K,V> implements Value<V> {
+public class BeehiveCacheValue<K,V> implements Value<K,V> {
 	private static final long serialVersionUID = 1L;
 	private K key;
 	private V value;

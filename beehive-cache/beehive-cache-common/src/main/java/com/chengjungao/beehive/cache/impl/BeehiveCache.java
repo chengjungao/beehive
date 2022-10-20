@@ -17,7 +17,6 @@ import com.chengjungao.beehive.cache.CacheListener;
 import com.chengjungao.beehive.cache.CacheLoader;
 import com.chengjungao.beehive.cache.CacheStats;
 import com.chengjungao.beehive.cache.Key;
-import com.chengjungao.beehive.cache.Value;
 import com.chengjungao.beehive.cache.config.CacheConfig;
 import com.chengjungao.beehive.cache.exception.CacheServerException;
 import com.chengjungao.beehive.cache.redis.RedisFactory;
@@ -34,7 +33,6 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 	
 	private String business;
 	private int expireAfterAccessMs;
-	private int refreshAfterWriteMs;
 	private int refreshIntervalMs;
 	private CacheStats cacheStats;
 	private CacheListener listener;
@@ -42,7 +40,6 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 	public BeehiveCache(CacheConfig config,CacheLoader<K, V> cacheLoader) {
 		this.cacheConfig = config;
 		this.business = config.getBusiness();
-		this.refreshAfterWriteMs = config.getRefreshAfterWriteMs();
 		this.expireAfterAccessMs = config.getExpireAfterAccessMs();
 		this.refreshIntervalMs = config.getRefreshIntervalMs();
 		
@@ -60,7 +57,7 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 	}
 
 	@Override
-	public Value<V> get(Key<K> key) throws Exception {
+	public BeehiveCacheValue<K, V> get(Key<K> key) throws Exception {
 		if (redissonClient == null) {
 			try {
 				return new BeehiveCacheValue<K,V>(key.getDatum(),cacheLoader.reload(key.getDatum()));
