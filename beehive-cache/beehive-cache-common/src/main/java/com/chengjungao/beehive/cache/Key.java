@@ -15,15 +15,22 @@ public interface Key<T> {
 	 */
 	public String hash();
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String equals();
 
 	/**
 	 * 
 	 * @return
 	 */
 	public T getDatum();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getBusiness();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRedisKey();
 }

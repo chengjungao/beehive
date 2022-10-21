@@ -1,7 +1,5 @@
 package com.chengjungao.beehive.cache.config;
 
-import com.chengjungao.beehive.cache.redis.RedisConfig;
-
 public class CacheConfig {
 	
 	private String business;

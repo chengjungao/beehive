@@ -1,4 +1,4 @@
-package com.chengjungao.beehive.cache.redis;
+package com.chengjungao.beehive.cache.config;
 
 import java.util.List;
 

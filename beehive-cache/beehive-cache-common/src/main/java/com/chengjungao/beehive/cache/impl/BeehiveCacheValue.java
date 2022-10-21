@@ -28,4 +28,22 @@ public class BeehiveCacheValue<K,V> implements Value<K,V> {
 		return null;
 	}
 
+	@Override
+	public boolean isValid() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public K getDataKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public V getDataValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

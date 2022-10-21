@@ -10,15 +10,15 @@ public interface RedisCacheHandler<K,V> {
 	
 	public Value<K,V> get(Key<K> key);
 	
-	public Map<Key<K>, Value<K,V>> mget(Collection<Key<K>> keys);
+	public Map<String, Value<K,V>> mget(Collection<String> keys);
 	
 	public void set(Key<K> key,Value<K,V> value,int expireMs);
 	
-	public void expire(String key,int expireMs);
+	public void expire(Key<K> key,int expireMs);
 	
 	public long ttl(String key);
 	
-	public void refresh(Key<K> key);
+	public void refresh(Key<K> key,CacheLoader<K, V> loader);
 	
 	public Set<String> smembers(String key);
 	
@@ -26,7 +26,7 @@ public interface RedisCacheHandler<K,V> {
 	
 	public void sadd(String key,String value);
 	
-	public void exists(String key);
+	public boolean exists(String key);
 	
 	public RedissonLock getLock(String key);
 	

@@ -9,8 +9,12 @@ import org.redisson.client.codec.ByteArrayCodec;
 import org.redisson.config.Config;
 import org.redisson.config.ReadMode;
 
+import com.chengjungao.beehive.cache.RedisCacheHandler;
+import com.chengjungao.beehive.cache.config.RedisConfig;
+import com.chengjungao.beehive.cache.impl.BeehiveRedisHandler;
+
 public class RedisFactory {
-	private static volatile Map<String, RedissonClient> REDISCLUSTERS = new ConcurrentHashMap<>();
+	private static volatile Map<String, RedisCacheHandler<?, ?>> REDISCLUSTERS = new ConcurrentHashMap<>();
 	
 	private static void registe(RedisConfig redisConfig) {
 		Config config = new Config();
@@ -27,11 +31,12 @@ public class RedisFactory {
 		.setPassword(redisConfig.getPassword());
 	    
 		RedissonClient redisson =  Redisson.create(config);
-		REDISCLUSTERS.put(redisConfig.getName(), redisson);
+		REDISCLUSTERS.put( redisConfig.getName(), new BeehiveRedisHandler<>(redisson));
 	}
 	
-	public static RedissonClient getClient(RedisConfig redisConfig) {
-		RedissonClient redissonClient = REDISCLUSTERS.get(redisConfig.getName());
+	@SuppressWarnings("unchecked")
+	public static <K,V> RedisCacheHandler<K, V> getClient(RedisConfig redisConfig) {
+		RedisCacheHandler<?, ?> redissonClient = REDISCLUSTERS.get(redisConfig.getName());
 		if (redissonClient == null) {
 			synchronized (REDISCLUSTERS) {
 				if (REDISCLUSTERS.get(redisConfig.getName()) == null) {
@@ -40,7 +45,7 @@ public class RedisFactory {
 				}
 			}
 		}
-		return redissonClient;
+		return (RedisCacheHandler<K, V>) redissonClient;
 	}
 	
 }

@@ -15,68 +15,70 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.redisson.RedissonLock;
-import org.redisson.api.RSet;
-import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.ByteArrayCodec;
-import org.redisson.client.codec.StringCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.chengjungao.beehive.cache.CacheListener;
+import com.chengjungao.beehive.cache.CacheLoader;
+import com.chengjungao.beehive.cache.RedisCacheHandler;
+import com.chengjungao.beehive.cache.Value;
 import com.chengjungao.beehive.cache.config.CacheConfig;
 import com.chengjungao.beehive.cache.redis.RedisFactory;
 
-public class BeeHiveCacheListener implements CacheListener {
+public class BeeHiveCacheListener<K,V> implements CacheListener<K,V> {
 	private static final Logger LOG = LoggerFactory.getLogger(BeeHiveCacheListener.class);
 	
 	private static final String LOCK = "%s-Lock:%s";
 	private static final String LISTENER = "%s-Listener:%s";
 	
 	private CacheConfig config;
-	private RedissonClient redissonClient;
+	private RedisCacheHandler<K, V> redisCacheHandler;
+	private CacheLoader<K, V> loader;
+	
 	private BlockingQueue<String> waitedRefresh;
 	private int rollbackRefreshMs;
 	private int refreshIntervalMs;
 	
-	private ExecutorService relaodPool;
+	private ExecutorService reloadPool;
 
-	public BeeHiveCacheListener(CacheConfig config) {
+	public BeeHiveCacheListener(CacheConfig config,CacheLoader<K, V> loader) {
 		this.config = config;
+		this.loader = loader;
 		try {
-			this.redissonClient = RedisFactory.getClient(config.getRedisConfig());
+			this.redisCacheHandler = RedisFactory.getClient(config.getRedisConfig());
 		} catch (Exception e) {
 			LOG.error("init cache redis error!", e);
 		}
-		this.relaodPool = Executors.newFixedThreadPool(config.getReloadThread());
+		this.reloadPool = Executors.newFixedThreadPool(config.getReloadThread());
 	}
 
 	private void refreshListenedKeys(String listenerTime) throws Exception{
-		if (this.redissonClient == null){
+		if (this.redisCacheHandler == null){
 			return;
 		}
 		
 		String listenerKey = String.format(LISTENER, config.getBusiness(),listenerTime);
-		
-		RSet<String> rset = redissonClient.getSet(listenerKey,StringCodec.INSTANCE);
-		Set<String> refreshKeys	= rset.readAll();
+		Set<String> refreshKeys = redisCacheHandler.smembers(listenerKey);
 		if (refreshKeys == null || refreshKeys.isEmpty()) {
 			return;
 		}
 		
-		RedissonLock lock = (RedissonLock) redissonClient.getLock(String.format (LOCK, config.getBusiness(),listenerTime));
+		RedissonLock lock = (RedissonLock) redisCacheHandler.getLock(String.format (LOCK, config.getBusiness(),listenerTime));
 		Boolean lockresult = lock.tryLock(config.getRefreshIntervalMs(), TimeUnit.MILLISECONDS);
-		if (lockresult && redissonClient.getBucket(listenerKey).isExists()) {
+		
+		if (lockresult && redisCacheHandler.exists(listenerKey)) {
 			Long nextRefreshDate = System.currentTimeMillis () + config.getRefreshAfterWriteMs();
 			Set<String> nextRefreshKeys = new HashSet<>(refreshKeys);
 			try {
-				Map<String, byte[]> values = redissonClient.getBuckets(ByteArrayCodec.INSTANCE).get(refreshKeys.toArray(new String[refreshKeys.size()]));
+				Map<String, Value<K, V>> values = redisCacheHandler.mget(refreshKeys);
 				List<Future<Boolean>> futures = new ArrayList<>();
-				for (Entry<String, byte[]> entry : values.entrySet()) {
-					if (entry.getValue () != null && entry.getValue().length != 0) {
-						futures.add(relaodPool.submit(new Callable<Boolean>() {
+				for (Entry<String, Value<K, V>> entry : values.entrySet()) {
+					if (entry.getValue () != null && entry.getValue().isValid()) {
+						futures.add(reloadPool.submit(new Callable<Boolean>() {
 							@Override
 							public Boolean call() throws Exception {
-								
+								redisCacheHandler.refresh(new BeehiveCacheKey<>(config.getBusiness(), entry.getValue().getDataKey()),
+										loader);
 								return true;
 							}
 						}));
@@ -90,10 +92,10 @@ public class BeeHiveCacheListener implements CacheListener {
 				}finally {
 					String nextListenerKey = String.format(LISTENER, config.getBusiness() , String.valueOf(nextRefreshDate/refreshIntervalMs) );
 					if (!nextRefreshKeys.isEmpty()) {
-						RSet<String> rSet = redissonClient.getSet(nextListenerKey, StringCodec.INSTANCE);
-						rSet.addAll(nextRefreshKeys);
+						redisCacheHandler.sadd(nextListenerKey, nextRefreshKeys);
+						
 					}
-					redissonClient.getBucket(listenerKey).delete();
+					redisCacheHandler.delete(listenerKey);
 					lock.unlock();
 					lock.delete();
 				}
@@ -134,7 +136,6 @@ public class BeeHiveCacheListener implements CacheListener {
 				
 			}
 		},"Refresh-Cache").start();
-		
 	}
 
 }

@@ -13,4 +13,9 @@ public interface Value<K,T> extends Serializable {
 	
 	public byte[] writeTo();
 	
+	public boolean isValid();
+	
+	public K getDataKey();
+	
+	public T getDataValue();
 }
