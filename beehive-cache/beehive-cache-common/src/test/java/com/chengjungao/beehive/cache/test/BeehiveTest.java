@@ -25,8 +25,8 @@ public class BeehiveTest {
 	@Before
 	public void init() {
 		List<String> nodeList = new ArrayList<>();
-		nodeList.add("redis://8.140.172.9:9091");
-		RedisConfig redisConfig = new RedisConfig(nodeList, "TestRedis", 10, 5000, "627@Cheng");
+		nodeList.add("redis://*.*.*.*:*");
+		RedisConfig redisConfig = new RedisConfig(nodeList, "TestRedis", 10, 5000, "****");
 				
 		CacheConfig cacheConfig = new CacheConfig("TestBusiness",redisConfig);
 		cache = new BeehiveCache<>(cacheConfig, new CacheLoader<String, String>() {
