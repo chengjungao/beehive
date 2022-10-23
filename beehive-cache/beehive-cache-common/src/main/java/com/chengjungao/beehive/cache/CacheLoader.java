@@ -22,8 +22,6 @@ public interface CacheLoader<K, V>  {
 	  public V load(K key) throws Exception;
 	  
 	  
-	  public V reload(K key) throws Exception;
-	  
 	  /**
 	   * Computes or retrieves the values corresponding to {@code keys}. This method is called by
 	   * {@link LoadingCache#getAll}.

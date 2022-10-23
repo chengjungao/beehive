@@ -8,17 +8,17 @@ import org.redisson.RedissonLock;
 
 public interface RedisCacheHandler<K,V> {
 	
-	public Value<K,V> get(Key<K> key);
+	public Value<K,V> get(String business,Key<K> key);
 	
 	public Map<String, Value<K,V>> mget(Collection<String> keys);
 	
-	public void set(Key<K> key,Value<K,V> value,int expireMs);
+	public void set(String business,Key<K> key,Value<K,V> value,int expireMs);
 	
-	public void expire(Key<K> key,int expireMs);
+	public void expire(String business,Key<K> key,int expireMs);
 	
 	public long ttl(String key);
 	
-	public void refresh(Key<K> key,CacheLoader<K, V> loader);
+	public void refresh(String business,Key<K> key,CacheLoader<K, V> loader);
 	
 	public Set<String> smembers(String key);
 	

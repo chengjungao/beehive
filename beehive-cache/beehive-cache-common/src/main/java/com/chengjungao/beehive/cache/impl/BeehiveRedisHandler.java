@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import javax.cache.CacheException;
 
 import org.redisson.RedissonLock;
 import org.redisson.api.RBucket;
@@ -27,10 +30,10 @@ public class BeehiveRedisHandler<K,V> implements RedisCacheHandler<K, V> {
 	}
 	
 	@Override
-	public Value<K, V> get(Key<K> key) {
+	public Value<K, V> get(String business,Key<K> key) {
 		//query redis
-		RBucket<byte[]> cacheBucket = redissonClient.getBucket(key.getRedisKey());
-		byte[] redisValue = (byte[]) cacheBucket.get();
+		RBucket<byte[]> cacheBucket = redissonClient.getBucket(key.getRedisKey(business));
+		byte[] redisValue = cacheBucket.get();
 		
 		BeehiveCacheValue<K,V>  value =  new BeehiveCacheValue<K,V>();
 		value.readFrom(redisValue);
@@ -52,29 +55,45 @@ public class BeehiveRedisHandler<K,V> implements RedisCacheHandler<K, V> {
 	}
 
 	@Override
-	public void set(Key<K> key, Value<K, V> value, int expireMs) {
-		RBucket<byte[]> object = redissonClient.getBucket(key.getRedisKey());
-		object.set(value.writeTo());
-		object.expire(Duration.ofMillis(expireMs));
-		
+	public void set(String business,Key<K> key, Value<K, V> value, int expireMs) {
+		RBucket<byte[]> object = redissonClient.getBucket(key.getRedisKey(business));
+		if (expireMs > 0) {
+			object.set(value.writeTo(),expireMs,TimeUnit.MILLISECONDS);
+		}else {
+			throw new CacheException("expireMs must be great than 0!");
+		}
 	}
 
 	@Override
-	public void expire(Key<K> key, int expireMs) {
-		RBucket<byte[]> object = redissonClient.getBucket(key.getRedisKey());
-		object.expire(Duration.ofMillis(expireMs));
+	public void expire(String business,Key<K> key, int expireMs) {
+		if (expireMs > 0) {
+			RBucket<byte[]> object = redissonClient.getBucket(key.getRedisKey(business));
+			object.expire(Duration.ofMillis(expireMs));
+		}
 	}
 
 	@Override
 	public long ttl(String key) {
-		// TODO Auto-generated method stub
-		return 0;
+		RBucket<byte[]> object = redissonClient.getBucket(key);
+		return object.remainTimeToLive();
 	}
 
 	@Override
-	public void refresh(Key<K> key,CacheLoader<K, V> loader) {
-		// TODO Auto-generated method stub
-		
+	public void refresh(String business,Key<K> key,CacheLoader<K, V> loader) {
+		try {
+			V value = loader.load(key.getDatum());
+			RBucket<byte[]> object = redissonClient.getBucket(key.getRedisKey(business));
+			long ttl = object.remainTimeToLive();
+			if (object.remainTimeToLive() > 0) {
+				object.set(new BeehiveCacheValue<K, V>(key.getDatum(), value).writeTo(),ttl,TimeUnit.MILLISECONDS);
+			}
+			/**
+			 * require redis 6.0 or higher
+			 */
+			//object.setAndKeepTTL(new BeehiveCacheValue<K, V>(key.getDatum(), value).writeTo());
+		} catch (Exception e) {
+			throw new CacheException("Refresh cache error!", e);
+		}
 	}
 
 	@Override

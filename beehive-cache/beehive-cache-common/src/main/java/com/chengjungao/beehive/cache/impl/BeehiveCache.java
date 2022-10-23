@@ -4,6 +4,8 @@ package com.chengjungao.beehive.cache.impl;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.cache.CacheException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,7 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 		try {
 			this.redisCacheHandler = RedisFactory.getClient(config.getRedisConfig());
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOG.error("init cache redis error!", e);
 		}
 		listener = new BeeHiveCacheListener<>(cacheConfig,cacheLoader);
@@ -56,17 +59,17 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 	public Value<K, V> get(Key<K> key) throws Exception {
 		if (redisCacheHandler == null) {
 			try {
-				return new BeehiveCacheValue<K,V>(key.getDatum(),cacheLoader.reload(key.getDatum()));
+				return new BeehiveCacheValue<K,V>(key.getDatum(),cacheLoader.load(key.getDatum()));
 			} catch (Exception e) {
 				throw new CacheServerException(key.getDatum() + " load faild!", e);
 			}
 		}
-		Value<K,V>  value =  redisCacheHandler.get(key);
+		Value<K,V>  value =  redisCacheHandler.get(business,key);
 		//miss hit
 		if (value == null || !value.isValid()) {
 			long current = System.currentTimeMillis();
 			try {
-				value =  new BeehiveCacheValue<K,V>(key.getDatum(),cacheLoader.reload(key.getDatum()));
+				value =  new BeehiveCacheValue<K,V>(key.getDatum(),cacheLoader.load(key.getDatum()));
 				cacheStats.loadSuccessCountIncr();
 				
 				writeRedisPool.submit(new WriteCacheThread(redisCacheHandler,key,value));//submit sync redis task
@@ -80,27 +83,28 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 			}
 		}else {
 			cacheStats.hitCountIncr();
-			redisCacheHandler.expire(key,expireAfterAccessMs);
+			redisCacheHandler.expire(business,key,expireAfterAccessMs); //renew expireAfterAccessMs
 			return value;
 		}
 	}
 
 	@Override
-	public void refresh(Key key) {
-		// TODO Auto-generated method stub
-		
+	public void refresh(Key<K> key) {
+		try {
+			redisCacheHandler.refresh(business,key, cacheLoader);
+		} catch (Exception e) {
+			throw new CacheException("Refresh cache error!", e);
+		}
 	}
 
 	@Override
-	public void invalid(Key key) {
-		// TODO Auto-generated method stub
-		
+	public void invalid(Key<K> key) {
+		redisCacheHandler.delete(key.getRedisKey(business));
 	}
 
 	@Override
 	public CacheStats stats() {
-		// TODO Auto-generated method stub
-		return null;
+		return cacheStats;
 	}
 	
 	class WriteCacheThread implements Runnable{
@@ -117,11 +121,11 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 		@Override
 		public void run() {
 			//set cache data
-			redisCacheHandler.set(key, value, expireAfterAccessMs);
+			redisCacheHandler.set(business,key, value, expireAfterAccessMs);
 			
 			//add listener key
 			String listenerKey = String.format(LISTENER, business,String.valueOf(System.currentTimeMillis()/refreshIntervalMs) );
-			redisCacheHandler.sadd(listenerKey, key.getRedisKey());
+			redisCacheHandler.sadd(listenerKey, key.getRedisKey(business));
 		}
 		
 	}

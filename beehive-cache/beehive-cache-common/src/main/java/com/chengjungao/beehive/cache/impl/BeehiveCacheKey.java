@@ -7,10 +7,9 @@ import com.chengjungao.beehive.cache.Key;
 public class BeehiveCacheKey<K> implements Key<K> {
 	private static final String KEY = "%s:%s";
 	
-	private String business;
 	private K datum;
 	
-	public BeehiveCacheKey(String business, K datum) {
+	public BeehiveCacheKey(K datum) {
 		this.datum = datum;
 	}
 	
@@ -24,22 +23,17 @@ public class BeehiveCacheKey<K> implements Key<K> {
 
 	@Override
 	public String hash() {
-		return String.valueOf(datum.hashCode());
+		return String.valueOf(hashCode());
 	}
 
 	@Override
-	public String getBusiness() {
-		return this.business;
-	}
-	
-	@Override
-	public String getRedisKey() {
-		return String.format(KEY, getBusiness(), hash());
+	public String getRedisKey(String business) {
+		return String.format(KEY, business, hash());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(business, datum);
+		return Objects.hash(datum);
 	}
 
 	@Override
@@ -50,9 +44,8 @@ public class BeehiveCacheKey<K> implements Key<K> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		@SuppressWarnings("rawtypes")
-		BeehiveCacheKey other = (BeehiveCacheKey) obj;
-		return Objects.equals(business, other.business) && Objects.equals(datum, other.datum);
+		@SuppressWarnings("unchecked")
+		BeehiveCacheKey<K> other = (BeehiveCacheKey<K>) obj;
+		return Objects.equals(datum, other.datum);
 	}
-
 }

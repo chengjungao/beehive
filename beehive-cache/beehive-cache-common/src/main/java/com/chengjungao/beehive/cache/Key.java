@@ -22,15 +22,10 @@ public interface Key<T> {
 	 */
 	public T getDatum();
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getBusiness();
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public String getRedisKey();
+	public String getRedisKey(String business);
 }

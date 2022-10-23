@@ -21,7 +21,7 @@ public class RedisFactory {
 		config.setCodec(ByteArrayCodec.INSTANCE);
 		config.useClusterServers()
 	    .addNodeAddress(redisConfig.getNodeAddress())
-	    .setReadMode(ReadMode.SLAVE)
+	    .setReadMode(ReadMode.MASTER_SLAVE)
 	    .setSlaveConnectionMinimumIdleSize(redisConfig.getMaxConnection() / 3)
 	    .setSlaveConnectionPoolSize(redisConfig.getMaxConnection())
 	    .setMasterConnectionMinimumIdleSize(redisConfig.getMaxConnection() / 3)

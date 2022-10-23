@@ -44,6 +44,9 @@ public class BeeHiveCacheListener<K,V> implements CacheListener<K,V> {
 	public BeeHiveCacheListener(CacheConfig config,CacheLoader<K, V> loader) {
 		this.config = config;
 		this.loader = loader;
+		this.rollbackRefreshMs = config.getRollbackRefreshMs();
+		this.refreshIntervalMs = config.getRefreshIntervalMs();
+		this.waitedRefresh = new ArrayBlockingQueue<>(config.getMaxWaitedRefreshSize());
 		try {
 			this.redisCacheHandler = RedisFactory.getClient(config.getRedisConfig());
 		} catch (Exception e) {
@@ -77,7 +80,7 @@ public class BeeHiveCacheListener<K,V> implements CacheListener<K,V> {
 						futures.add(reloadPool.submit(new Callable<Boolean>() {
 							@Override
 							public Boolean call() throws Exception {
-								redisCacheHandler.refresh(new BeehiveCacheKey<>(config.getBusiness(), entry.getValue().getDataKey()),
+								redisCacheHandler.refresh(config.getBusiness(),new BeehiveCacheKey<>(entry.getValue().getDataKey()),
 										loader);
 								return true;
 							}
@@ -119,7 +122,7 @@ public class BeeHiveCacheListener<K,V> implements CacheListener<K,V> {
 					} catch (InterruptedException e) {
 						
 					}
-					refreshTime += refreshIntervalMs;
+					refreshTime += 1;
 				}
 			}
 		},"Produce-Listener-Key").start();

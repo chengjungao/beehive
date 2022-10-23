@@ -1,6 +1,7 @@
 package com.chengjungao.beehive.cache.impl;
 
 import com.chengjungao.beehive.cache.Value;
+import com.chengjungao.beehive.cache.util.ProtostuffUtil;
 
 public class BeehiveCacheValue<K,V> implements Value<K,V> {
 	private static final long serialVersionUID = 1L;
@@ -18,32 +19,32 @@ public class BeehiveCacheValue<K,V> implements Value<K,V> {
 
 	@Override
 	public void readFrom(byte[] values) {
-		// TODO Auto-generated method stub
-
+		if (values != null && values.length != 0) {
+			@SuppressWarnings("unchecked")
+			BeehiveCacheValue<K,V> cacheValue = ProtostuffUtil.deserialize(values, this.getClass());
+			this.key = cacheValue.getDataKey();
+			this.value = cacheValue.getDataValue();
+		}
+		
 	}
 
 	@Override
 	public byte[] writeTo() {
-		// TODO Auto-generated method stub
-		return null;
+		return ProtostuffUtil.serialize(this);
 	}
 
 	@Override
 	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+		return key != null && value != null;
 	}
 
 	@Override
 	public K getDataKey() {
-		// TODO Auto-generated method stub
-		return null;
+		return key;
 	}
 
 	@Override
 	public V getDataValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return value;
 	}
-
 }

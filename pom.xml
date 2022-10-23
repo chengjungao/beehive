@@ -16,6 +16,14 @@
   	<module>beehive-service-router</module>
   	<module>beehive-cache</module>
   </modules>
+  <dependencies>
+  	<dependency>
+  		<artifactId>junit</artifactId>
+  		<groupId>junit</groupId>
+  		<version>4.12</version>
+  		<scope>test</scope>
+  	</dependency>
+  </dependencies>
   <repositories>
 		<repository>
 			<id>public</id>

@@ -6,19 +6,39 @@ public class CacheConfig {
 	
 	private RedisConfig redisConfig;
 	
-	private int maxWaitedRefreshSize;
+	private int maxWaitedRefreshSize = 10000;
 	
-	private int refreshAfterWriteMs;
+	private int refreshAfterWriteMs = 1000 * 300;
 	
-	private int expireAfterAccessMs;
+	private int expireAfterAccessMs = 1000 * 900;
 	
-	private int rollbackRefreshMs;
+	private int rollbackRefreshMs = 1000 * 60;
 	
-	private int refreshIntervalMs;
+	private int refreshIntervalMs = 1000;
 	
-	private int syncRedisThread;
+	private int syncRedisThread = 20;
 	
-	private int reloadThread;
+	private int reloadThread = 20;
+
+	public CacheConfig(String business, RedisConfig redisConfig) {
+		this.business = business;
+		this.redisConfig = redisConfig;
+	}
+
+	public CacheConfig(String business, RedisConfig redisConfig, int maxWaitedRefreshSize, int refreshAfterWriteMs,
+			int expireAfterAccessMs, int rollbackRefreshMs, int refreshIntervalMs, int syncRedisThread,
+			int reloadThread) {
+		super();
+		this.business = business;
+		this.redisConfig = redisConfig;
+		this.maxWaitedRefreshSize = maxWaitedRefreshSize;
+		this.refreshAfterWriteMs = refreshAfterWriteMs;
+		this.expireAfterAccessMs = expireAfterAccessMs;
+		this.rollbackRefreshMs = rollbackRefreshMs;
+		this.refreshIntervalMs = refreshIntervalMs;
+		this.syncRedisThread = syncRedisThread;
+		this.reloadThread = reloadThread;
+	}
 
 	public String getBusiness() {
 		return business;
