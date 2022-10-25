@@ -25,8 +25,15 @@ import com.chengjungao.beehive.cache.Value;
 import com.chengjungao.beehive.cache.config.CacheConfig;
 import com.chengjungao.beehive.cache.redis.RedisFactory;
 
-public class BeeHiveCacheListener<K,V> implements CacheListener<K,V> {
-	private static final Logger LOG = LoggerFactory.getLogger(BeeHiveCacheListener.class);
+/**
+ * Beehive Cache监听器实现类
+ * @author wolf
+ *
+ * @param <K>
+ * @param <V>
+ */
+public class BeehiveCacheListener<K,V> implements CacheListener<K,V> {
+	private static final Logger LOG = LoggerFactory.getLogger(BeehiveCacheListener.class);
 	
 	private static final String LOCK = "%s-Lock:%s";
 	private static final String LISTENER = "%s-Listener:%s";
@@ -41,7 +48,7 @@ public class BeeHiveCacheListener<K,V> implements CacheListener<K,V> {
 	
 	private ExecutorService reloadPool;
 
-	public BeeHiveCacheListener(CacheConfig config,CacheLoader<K, V> loader) {
+	public BeehiveCacheListener(CacheConfig config,CacheLoader<K, V> loader) {
 		this.config = config;
 		this.loader = loader;
 		this.rollbackRefreshMs = config.getRollbackRefreshMs();

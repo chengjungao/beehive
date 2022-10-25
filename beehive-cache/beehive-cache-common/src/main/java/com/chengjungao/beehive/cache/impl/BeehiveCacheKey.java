@@ -4,6 +4,12 @@ import java.util.Objects;
 
 import com.chengjungao.beehive.cache.Key;
 
+/**
+ * Beehive Cache键实现类
+ * @author wolf
+ *
+ * @param <K>
+ */
 public class BeehiveCacheKey<K> implements Key<K> {
 	private static final String KEY = "%s:%s";
 	

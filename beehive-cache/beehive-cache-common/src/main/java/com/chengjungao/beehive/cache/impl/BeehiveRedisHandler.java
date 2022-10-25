@@ -22,6 +22,13 @@ import com.chengjungao.beehive.cache.Key;
 import com.chengjungao.beehive.cache.RedisCacheHandler;
 import com.chengjungao.beehive.cache.Value;
 
+/**
+ * Beehive Cache Redis缓存操作实现类
+ * @author wolf
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class BeehiveRedisHandler<K,V> implements RedisCacheHandler<K, V> {
 	private RedissonClient redissonClient;
 	

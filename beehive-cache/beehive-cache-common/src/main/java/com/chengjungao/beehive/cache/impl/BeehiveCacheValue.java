@@ -3,6 +3,13 @@ package com.chengjungao.beehive.cache.impl;
 import com.chengjungao.beehive.cache.Value;
 import com.chengjungao.beehive.cache.util.ProtostuffUtil;
 
+/**
+ * Beehive Cache缓存值实现类
+ * @author wolf
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class BeehiveCacheValue<K,V> implements Value<K,V> {
 	private static final long serialVersionUID = 1L;
 	private K key;

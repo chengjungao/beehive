@@ -1,5 +1,10 @@
 package com.chengjungao.beehive.cache.exception;
 
+/**
+ * Beehive内部异常
+ * @author wolf
+ *
+ */
 public class CacheInternalException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 

@@ -1,5 +1,10 @@
 package com.chengjungao.beehive.cache.exception;
 
+/**
+ * Beehive Cache 所依赖Redis异常
+ * @author wolf
+ *
+ */
 public class CacheRedisException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 

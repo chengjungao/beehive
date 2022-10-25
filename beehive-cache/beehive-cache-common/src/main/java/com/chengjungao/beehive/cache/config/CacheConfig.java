@@ -1,23 +1,54 @@
 package com.chengjungao.beehive.cache.config;
 
+/**
+ * 缓存配置
+ * @author wolf
+ */
 public class CacheConfig {
 	
+	/**
+	 * 缓存业务域
+	 */
 	private String business;
 	
+	/**
+	 * RedisCluster配置
+	 */
 	private RedisConfig redisConfig;
 	
+	/**
+	 * 最大等待阻塞键数量
+	 */
 	private int maxWaitedRefreshSize = 10000;
 	
+	/**
+	 * 写入{@value refreshAfterWriteMs}毫秒后，刷新键值对
+	 */
 	private int refreshAfterWriteMs = 1000 * 300;
 	
+	/**
+	 * 在最后访问{@value expireAfterAccessMs}毫秒后键值对失效
+	 */
 	private int expireAfterAccessMs = 1000 * 900;
 	
+	/**
+	 * 程序启动时，将监听器刷新往回追溯{@value rollbackRefreshMs}毫秒，防止漏掉刷新
+	 */
 	private int rollbackRefreshMs = 1000 * 60;
 	
+	/**
+	 * 自动刷新键值对的时间间隔，默认1s
+	 */
 	private int refreshIntervalMs = 1000;
 	
+	/**
+	 * 将没有命中的键值对，通过异步线程刷入Redis的线程池大小
+	 */
 	private int syncRedisThread = 20;
 	
+	/**
+	 * 自动刷新键值对的线程池大小
+	 */
 	private int reloadThread = 20;
 
 	public CacheConfig(String business, RedisConfig redisConfig) {

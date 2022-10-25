@@ -2,15 +2,36 @@ package com.chengjungao.beehive.cache.config;
 
 import java.util.List;
 
+/**
+ * 缓存Redis Cluster配置
+ * 
+ * @author wolf
+ *
+ */
 public class RedisConfig {
+	/**
+	 * Redis节点，采用Redisson配置方式，eg：redis://127.0.0.1:6379
+	 */
 	private List<String> nodeAddress;
 	
+	/**
+	 * Redis Cluster名称，用户标识Redis Cluster
+	 */
 	private String name;
 	
+	/**
+	 * Redis Cluster最大连接数
+	 */
 	private int maxConnection;
 	
+	/**
+	 * Redis Cluster超时时间
+	 */
 	private int timeout;
 	
+	/**
+	 * Redis Cluster密码
+	 */
 	private String password;
 	
 	public RedisConfig() {

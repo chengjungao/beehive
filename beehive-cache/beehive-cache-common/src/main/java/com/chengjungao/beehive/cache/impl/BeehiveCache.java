@@ -20,6 +20,13 @@ import com.chengjungao.beehive.cache.config.CacheConfig;
 import com.chengjungao.beehive.cache.exception.CacheServerException;
 import com.chengjungao.beehive.cache.redis.RedisFactory;
 
+/**
+ * Beehive Cache实现
+ * @author wolf
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class BeehiveCache<K,V> implements Cache<K,V> {
 	private static final Logger LOG = LoggerFactory.getLogger(BeehiveCache.class);
 	
@@ -51,7 +58,7 @@ public class BeehiveCache<K,V> implements Cache<K,V> {
 			e.printStackTrace();
 			LOG.error("init cache redis error!", e);
 		}
-		listener = new BeeHiveCacheListener<>(cacheConfig,cacheLoader);
+		listener = new BeehiveCacheListener<>(cacheConfig,cacheLoader);
 		listener.startListen();
 	}
 
