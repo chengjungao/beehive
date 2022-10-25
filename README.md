@@ -1,4 +1,4 @@
-<img src="doc/img/beehive.jpeg" width=100/>
+
 
 # Beehive
 个人的Java基础项目，集基础工具和个人java框架基础项目，蜂巢为蜜蜂所构建的分工明确、结构紧密、功能齐全的蜜蜂王国的基础，故取名蜂巢激励自己不断学习，构建自己的Java基础框架。
