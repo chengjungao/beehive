@@ -1,28 +1,25 @@
-<img src="../../doc/img/beehive.jpeg" width=100/>
-
-
-##Beehive Cache是什么?
+## Beehive Cache是什么?
 一个依赖Redis Cluster实现的可自动刷新的缓存
 
-##Beehive Cache有哪些功能？
+## Beehive Cache有哪些功能？
 
 * 可以设置在最后访问一定时间后自动失效
 * 可以设置在缓存写入一定时间后自动刷新值
 
 
-##Beehive的设计
+## Beehive的设计
 Beehive设计场景为，当我们无法通过扩展或者简单的升级硬件解决提高依赖的服务性能时，这个时候我们就可以引入Beehive Cache实现将热点数据长效的缓存，并通过后台刷新保持缓存数据的实效性
 
-###Beehive设计目的
+### Beehive设计目的
 为了设计一款能分布式使用，且具有长效存储和兼顾数据实时性的缓存，我们可以结合Guava Cache和Redis来进行设计，因此我们进行如下设计：
   * refreshAfterWrite, 在写入一定时间后，监听会主动刷新缓存
   * expireAfterAccess，距离最后的缓存访问时间间隔超过了允许的时间，数据即失效，并且不再进行监听刷新。
   * 统一的分布式存储，提供网络访问方式，统一存储。
   
-###设计架构
-<img src="../../doc/img/beehive-cache.png" width=600/>
+### 设计架构
+<img src="https://github.com/chengjungao/beehive/tree/master/doc/img/beehive-cache.png" width=600/>
 
-##使用示例
+## 使用示例
 
 ```java
 		List<String> nodeList = new ArrayList<>();
