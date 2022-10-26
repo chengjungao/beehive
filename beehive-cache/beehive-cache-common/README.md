@@ -17,7 +17,7 @@ Beehive设计场景为，当我们无法通过扩展或者简单的升级硬件�
   * 统一的分布式存储，提供网络访问方式，统一存储。
   
 ### 设计架构
-<img src="https://github.com/chengjungao/beehive/tree/master/doc/img/beehive-cache.png" width=600/>
+<img src="https://raw.github.com/chengjungao/beehive/master/doc/img/beehive-cache.png" width=600/>
 
 ## 使用示例
 
