@@ -9,13 +9,11 @@ import java.util.Objects;
 
 import com.chengjungao.beehive.common.hash.Hash;
 
-public class ConsistenthHashLoadBalance implements HashLoadBalance{
+public class ConsistenthHashLoadBalance implements LoadBalanceById {
 	
 	private List<Node> allNodes = new ArrayList<>();
 	
 	private List<Node> aliveNodes = new ArrayList<>();
-	
-	private List<Range> ranges = new ArrayList<>();
 	
 	private Map<Range,Node> rangeNodeMapping = new HashMap<>();
 	
@@ -23,9 +21,44 @@ public class ConsistenthHashLoadBalance implements HashLoadBalance{
 
 	private int midIndex;
 	
+	private List<Range> ranges;
+	
 	public ConsistenthHashLoadBalance(List<Node> nodes) {
+		this(nodes, 10, new DefaultNodeChangeListener());
+	}
+	
+	public ConsistenthHashLoadBalance(List<Node> nodes,int shardsPerNode,NodeChangeListener nodeChangeListener) {
 		this.allNodes.addAll(nodes);
+		this.ranges = partitionRange(nodes.size() * shardsPerNode , new Range(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		
+		List<Range> tempRanges = new ArrayList<>(); //待分配的ranges
+		
+		//将rangs分配给存活的节点
+		for (int i = 0; i < nodes.size(); i++) {
+			List<Range> subRanges = ranges.subList(i * shardsPerNode , (i + 1) * shardsPerNode);
+			nodeRangesMapping.put(nodes.get(i), ranges);
+			if (nodes.get(i).healthCheck()) {
+				aliveNodes.add(nodes.get(i));
+				for (Range range : subRanges) {
+					rangeNodeMapping.put(range, nodes.get(i));
+				}
+			}else {
+				tempRanges.addAll(subRanges);
+			}
+		}
+		if (aliveNodes.isEmpty()) {
+			throw new RuntimeException("No Alive Node, Please check!");
+		}
+		
+		//将坏掉的节点所需要分配的节点，分配给其他节点
+		for (int i = 0; i < tempRanges.size(); i++) {
+			rangeNodeMapping.put(tempRanges.get(i), aliveNodes.get(i % aliveNodes.size()));
+		}
+		
 		this.midIndex = ranges.size() / 2;
+		
+		//start listen all nodes
+		nodeChangeListener.start(this);
 	}
 
 	@Override
@@ -37,6 +70,24 @@ public class ConsistenthHashLoadBalance implements HashLoadBalance{
 		Range targetRange = searchByHash(hash,ranges.get(midIndex),midIndex);
 		
 		return rangeNodeMapping.get(targetRange);
+	}
+	
+	@Override
+	public void nodeFail(Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void nodeRecover(Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public List<Node> getAllNodes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	private Range searchByHash(int hash,Range midRange,int midIndex) {
@@ -165,5 +216,5 @@ public class ConsistenthHashLoadBalance implements HashLoadBalance{
     	SUCCESS
     }
 
-    
+
 }

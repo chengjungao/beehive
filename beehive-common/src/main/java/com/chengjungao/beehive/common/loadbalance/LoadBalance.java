@@ -1,8 +1,7 @@
 package com.chengjungao.beehive.common.loadbalance;
 
-public interface LoadBalance {
+public interface LoadBalance extends NodeChangeAble{
 
 	public Node selectNode();
 	
-	public void shutdown();
 }
