@@ -6,22 +6,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.chengjungao.beehive.common.hash.Hash;
 
+/**
+ * 一致性环状hash实现的负载均衡
+ * @author wolf
+ */
 public class ConsistenthHashLoadBalance implements LoadBalanceById {
 	
 	private List<Node> allNodes = new ArrayList<>();
 	
-	private List<Node> aliveNodes = new ArrayList<>();
+	private volatile List<Node> aliveNodes = new ArrayList<>();
 	
-	private Map<Range,Node> rangeNodeMapping = new HashMap<>();
+	private volatile Map<Range,Node> rangeNodeMapping = new ConcurrentHashMap<>();
 	
 	private Map<Node, List<Range>> nodeRangesMapping = new HashMap<>();
 
-	private int midIndex;
-	
 	private List<Range> ranges;
+	
+	
+	private NodeChangeListener listener;
 	
 	public ConsistenthHashLoadBalance(List<Node> nodes) {
 		this(nodes, 10, new DefaultNodeChangeListener());
@@ -36,7 +42,7 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 		//将rangs分配给存活的节点
 		for (int i = 0; i < nodes.size(); i++) {
 			List<Range> subRanges = ranges.subList(i * shardsPerNode , (i + 1) * shardsPerNode);
-			nodeRangesMapping.put(nodes.get(i), ranges);
+			nodeRangesMapping.put(nodes.get(i), subRanges);
 			if (nodes.get(i).healthCheck()) {
 				aliveNodes.add(nodes.get(i));
 				for (Range range : subRanges) {
@@ -55,10 +61,9 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 			rangeNodeMapping.put(tempRanges.get(i), aliveNodes.get(i % aliveNodes.size()));
 		}
 		
-		this.midIndex = ranges.size() / 2;
-		
+		this.listener = nodeChangeListener;
 		//start listen all nodes
-		nodeChangeListener.start(this);
+		this.listener.start(this);
 	}
 
 	@Override
@@ -67,45 +72,56 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 			throw new RuntimeException("identify is empty!");
 		}
 		int hash = Hash.murmurhash3_x86_32(identify, 0, identify.length(), 0);
-		Range targetRange = searchByHash(hash,ranges.get(midIndex),midIndex);
+		Range targetRange = searchByHash(hash,0,ranges.size());
 		
 		return rangeNodeMapping.get(targetRange);
 	}
 	
 	@Override
 	public void nodeFail(Node node) {
-		// TODO Auto-generated method stub
-		
+		aliveNodes.remove(node);
+		//重新分配此节点的ranges
+		List<Range> ranges = nodeRangesMapping.get(node);
+		for (int i = 0; i < ranges.size(); i++) {
+			rangeNodeMapping.put(ranges.get(i), aliveNodes.get(i % aliveNodes.size()));
+		}
 	}
 
 	@Override
 	public void nodeRecover(Node node) {
-		// TODO Auto-generated method stub
-		
+		aliveNodes.add(node);
+		//恢复此节点原来所属的ranges
+		List<Range> ranges = nodeRangesMapping.get(node);
+		for (int i = 0; i < ranges.size(); i++) {
+			rangeNodeMapping.put(ranges.get(i), node);
+		}
 	}
 	
 	@Override
 	public List<Node> getAllNodes() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.allNodes;
 	}
 	
-	private Range searchByHash(int hash,Range midRange,int midIndex) {
+	@Override
+	public List<Node> getAliveNodes() {
+		return this.aliveNodes;
+	}
+
+	
+	private Range searchByHash(int hash,int min,int max) {
+		int mid = (max + min) / 2;
+		Range midRange = ranges.get(mid);
 		RangeResult rangeResult =  midRange.include(hash);
 		switch (rangeResult) {
 		case SUCCESS: {
 			return midRange;
 			}
 		case OUT_OF_RANGE_LEFT: {
-			midIndex = midIndex / 2;
-			Range midRangeLeft = ranges.get(midIndex);
-			return searchByHash(hash, midRangeLeft, midIndex);
+			return searchByHash(hash, min, mid);
 			}
 			
 		case OUT_OF_RANGE_RIGHT:{
-			midIndex = (midIndex + ranges.size()) / 2;
-			Range midRangeRight = ranges.get(midIndex);
-			return searchByHash(hash, midRangeRight, midIndex);
+			return searchByHash(hash, mid, max);
 			}
 		 default :
 			 throw new RuntimeException("It is impossible!");
@@ -114,7 +130,14 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 
 	@Override
 	public void shutdown() {
-		
+		this.listener.shutdown();
+		for (Node node : allNodes) {
+			try {
+				node.close();
+			} catch (Exception e) {
+				// ignore
+			}
+		}
 	}
 	
     private List<Range> partitionRange(int partitions, Range range) {
@@ -215,6 +238,5 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
     	 */
     	SUCCESS
     }
-
 
 }
