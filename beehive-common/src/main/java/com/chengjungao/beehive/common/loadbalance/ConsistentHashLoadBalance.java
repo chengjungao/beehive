@@ -14,34 +14,41 @@ import com.chengjungao.beehive.common.hash.Hash;
  * 一致性环状hash实现的负载均衡
  * @author wolf
  */
-public class ConsistenthHashLoadBalance implements LoadBalanceById {
+public class ConsistentHashLoadBalance<T extends Node> implements LoadBalanceById<T> {
 	
-	private List<Node> allNodes = new ArrayList<>();
+	private List<T> allNodes = new ArrayList<>();
 	
-	private volatile List<Node> aliveNodes = new ArrayList<>();
+	private volatile List<T> aliveNodes = new ArrayList<>();
 	
-	private volatile Map<Range,Node> rangeNodeMapping = new ConcurrentHashMap<>();
+	private volatile Map<Range,T> rangeNodeMapping = new ConcurrentHashMap<>();
 	
-	private Map<Node, List<Range>> nodeRangesMapping = new HashMap<>();
+	private Map<T, List<Range>> nodeRangesMapping = new HashMap<>();
 
 	private List<Range> ranges;
 	
 	
 	private NodeChangeListener listener;
 	
-	public ConsistenthHashLoadBalance(List<Node> nodes) {
+	public ConsistentHashLoadBalance(List<T> nodes) {
 		this(nodes, 10, new DefaultNodeChangeListener());
 	}
 	
-	public ConsistenthHashLoadBalance(List<Node> nodes,int shardsPerNode,NodeChangeListener nodeChangeListener) {
+	public ConsistentHashLoadBalance(List<T> nodes,int shardsPerNode,NodeChangeListener nodeChangeListener) {
 		this.allNodes.addAll(nodes);
-		this.ranges = partitionRange(nodes.size() * shardsPerNode , new Range(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		int slotSize = 0;
+		for (Node node : nodes) {
+			slotSize += node.getWeight() * shardsPerNode;
+		}
+		this.ranges = partitionRange(slotSize, new Range(Integer.MIN_VALUE, Integer.MAX_VALUE));
 		
 		List<Range> tempRanges = new ArrayList<>(); //待分配的ranges
 		
 		//将rangs分配给存活的节点
+		int start = 0;
 		for (int i = 0; i < nodes.size(); i++) {
-			List<Range> subRanges = ranges.subList(i * shardsPerNode , (i + 1) * shardsPerNode);
+			int end = start + shardsPerNode * nodes.get(i).getWeight();
+			List<Range> subRanges = ranges.subList(start , end);
+			start = end;
 			nodeRangesMapping.put(nodes.get(i), subRanges);
 			if (nodes.get(i).healthCheck()) {
 				aliveNodes.add(nodes.get(i));
@@ -67,7 +74,7 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 	}
 
 	@Override
-	public Node selectNode(String identify) {
+	public T selectNode(String identify) {
 		if (identify == null || "".equals(identify)) {
 			throw new RuntimeException("identify is empty!");
 		}
@@ -78,7 +85,7 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 	}
 	
 	@Override
-	public void nodeFail(Node node) {
+	public void nodeFail(T node) {
 		aliveNodes.remove(node);
 		//重新分配此节点的ranges
 		List<Range> ranges = nodeRangesMapping.get(node);
@@ -88,7 +95,7 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 	}
 
 	@Override
-	public void nodeRecover(Node node) {
+	public void nodeRecover(T node) {
 		aliveNodes.add(node);
 		//恢复此节点原来所属的ranges
 		List<Range> ranges = nodeRangesMapping.get(node);
@@ -98,12 +105,12 @@ public class ConsistenthHashLoadBalance implements LoadBalanceById {
 	}
 	
 	@Override
-	public List<Node> getAllNodes() {
+	public List<T> getAllNodes() {
 		return this.allNodes;
 	}
 	
 	@Override
-	public List<Node> getAliveNodes() {
+	public List<T> getAliveNodes() {
 		return this.aliveNodes;
 	}
 

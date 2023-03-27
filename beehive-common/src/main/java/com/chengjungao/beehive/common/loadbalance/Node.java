@@ -9,6 +9,8 @@ import java.io.Closeable;
 public interface Node extends Closeable{
 	
 	public String getNodeName();
+
+	public int getWeight();
 	
 	public int hashCode();
 	

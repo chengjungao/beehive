@@ -7,4 +7,9 @@
   </parent>
   <artifactId>beehive-service-router</artifactId>
   <packaging>pom</packaging>
+  <modules>
+    <module>beehive-http-service-client</module>
+  </modules>
+
+
 </project>
