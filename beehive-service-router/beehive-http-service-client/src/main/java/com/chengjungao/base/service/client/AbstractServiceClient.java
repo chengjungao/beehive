@@ -23,11 +23,11 @@ public abstract class AbstractServiceClient implements ServiceClient<CloseableHt
 
     private final CloseableHttpClient httpClient;
 
-    private final String url;
+    protected final String url;
 
     protected String pingPath;
 
-    private int weight = 1;
+    protected int weight = 1;
 
     public AbstractServiceClient(HttpClientConnectionManager httpClientConnectionManager, String url, String pingPath, int weight,
                                  HttpRequestRetryHandler httpRequestRetryHandler, ProxyConfig proxy) {

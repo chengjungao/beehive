@@ -19,7 +19,7 @@ public abstract class Params<Body> {
 
     private Map<String, List<Object>> params;
 
-    private Body body;
+    protected Body body;
 
     private List<Header> headers;
 
@@ -97,7 +97,7 @@ public abstract class Params<Body> {
             if (!path.startsWith("/")){
                 sb.append("/");
             }
-            sb.append(url);
+            sb.append(path);
         }
 
         if (!url.contains("?")){

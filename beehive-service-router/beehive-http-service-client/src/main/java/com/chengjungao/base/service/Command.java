@@ -2,7 +2,7 @@ package com.chengjungao.base.service;
 
 import org.apache.http.client.HttpClient;
 
-public abstract class Command <T extends HttpClient>{
+public class Command <T extends HttpClient>{
 
     private Params params;
 
@@ -22,43 +22,43 @@ public abstract class Command <T extends HttpClient>{
         this.path = path;
     }
 
-    public Method getMethod() {
-        return method;
+    public Command(Params params, Method method, ServiceClient<T> serviceClient, String path) {
+        this.params = params;
+        this.method = method;
+        this.serviceClient = serviceClient;
+        this.path = path;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
+    public String execute(){
+        return serviceClient.execute(this);
+    }
+
+    public <Response> Response execute(Class<Response> responseClass){
+        return serviceClient.execute(this,responseClass);
+    }
+
+    public <Response> Response execute(ResponseParser<Response> responseParser){
+        return serviceClient.execute(this,responseParser);
+    }
+
+    public Method getMethod() {
+        return method;
     }
 
     public Params getParams() {
         return params;
     }
 
-    public void setParams(Params params) {
-        this.params = params;
-    }
-
     public ServiceClient<T> getServiceClient() {
         return serviceClient;
-    }
-
-    public void setServiceClient(ServiceClient<T> serviceClient) {
-        this.serviceClient = serviceClient;
     }
 
     public int getTimeout() {
         return timeout;
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
     public String getPath() {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
 }
