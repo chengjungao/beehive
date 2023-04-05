@@ -9,6 +9,8 @@
   <packaging>pom</packaging>
   <modules>
     <module>beehive-http-service-client</module>
+      <module>beehive-service-router-starter</module>
+    <module>beehive-service-router-autoconfigure</module>
   </modules>
 
 

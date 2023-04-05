@@ -37,7 +37,7 @@ public class TestServiceClient {
     public void test() {
         Params<JSONObject> params = new CommonParams();
         params.addParam("bogId", "12");
-        Command<CloseableHttpClient> command = new Command(params, Method.GET,
+        Command<CloseableHttpClient> command = new Command<>(params, Method.GET,
                 serviceClientFactory.getRandomServiceClient(), "/blog/${bogId}");
 
         String response = command.execute();

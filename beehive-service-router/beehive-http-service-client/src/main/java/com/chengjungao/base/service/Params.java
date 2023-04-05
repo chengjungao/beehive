@@ -52,6 +52,10 @@ public abstract class Params<Body> {
         this.body = body;
     }
 
+    public Body getBody() {
+        return body;
+    }
+
     public List<Header> getHeaders() {
         return headers;
     }
@@ -71,6 +75,16 @@ public abstract class Params<Body> {
 
     public void addParam(String key, List<Object> values) {
         this.params.put(key, values);
+    }
+
+    public void addParams(Map<String, List<Object>> params) {
+        this.params.putAll(params);
+    }
+
+    public void addParam(Map<String, Object> params) {
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            this.addParam(entry.getKey(), entry.getValue());
+        }
     }
 
     public void addHeader(Header header) {
