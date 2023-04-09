@@ -12,6 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author chengjungao
+ * @date 2023/4/6
+ * @description Service Router Impl
+ */
 public class ServiceRouterImpl implements ServiceRouter {
     private final HashMap<String,ServiceConfig> serviceConfigHashMap = new HashMap<>();
     public ServiceRouterImpl(ServiceRouterConfiguration serviceRouterConfiguration) {
@@ -38,6 +43,11 @@ public class ServiceRouterImpl implements ServiceRouter {
         return (T)command.execute(serviceConfig.getResponseClass());
     }
 
+    /**
+     * get service load-balance payload
+     * @param params
+     * @return
+     */
     private String getPayload(CommonParams params){
         List<Integer> values = new ArrayList<>();
         for (Map.Entry<String,List<Object>> entry : params.getParams().entrySet()) {
