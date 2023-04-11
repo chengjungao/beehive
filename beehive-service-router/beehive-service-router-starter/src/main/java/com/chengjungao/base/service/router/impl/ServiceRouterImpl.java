@@ -42,10 +42,17 @@ public class ServiceRouterImpl implements ServiceRouter {
         }
         ServiceClient<CloseableHttpClient> serviceClient = serviceClientFactory.getServiceClient(getPayload(params));
         Command<CloseableHttpClient> command = new Command<>(params, Method.getMethod(serviceConfig.getMethod()),serviceClient,serviceConfig.getPath());
-        if ("java.lang.String".equals(serviceConfig.getResponseClassName())){
-            return (T) command.execute();
+        switch (serviceConfig.getDeserializeType()){
+            case String:
+                return (T) command.execute();
+            case Object:
+                return (T) command.execute(serviceConfig.getResponseClass());
+            case Json:
+                return (T) command.execute(new ResponseParser.JsonResponseParser());
+
+            default:
+                throw new RuntimeException("DeserializeType is not support");
         }
-        return (T)command.execute(serviceConfig.getResponseClass());
     }
 
     /**

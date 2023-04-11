@@ -8,6 +8,6 @@ beehive:
             maxTotal: 2
             maxPerRoute: 1
             maxRetry: 2
-            responseClass: java.lang.String
+            deserializeType: String
             urls:
               - http://www.chengjungao.cn

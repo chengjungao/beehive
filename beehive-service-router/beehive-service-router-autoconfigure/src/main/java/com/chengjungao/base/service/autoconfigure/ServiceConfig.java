@@ -20,6 +20,8 @@ public class ServiceConfig {
 
     int maxRetry;
 
+    DeserializeType deserializeType;
+
     String responseClass;
 
     List<String> urls;
@@ -90,6 +92,14 @@ public class ServiceConfig {
         this.maxRetry = maxRetry;
     }
 
+    public DeserializeType getDeserializeType() {
+        return deserializeType;
+    }
+
+    public void setDeserializeType(DeserializeType deserializeType) {
+        this.deserializeType = deserializeType;
+    }
+
     public Class<?> getResponseClass() {
         try {
             return Class.forName(responseClass);
@@ -121,4 +131,5 @@ public class ServiceConfig {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
+
 }
