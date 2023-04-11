@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
-@ConfigurationProperties(prefix = "beehive.service.router")
+@ConfigurationProperties(prefix = "beehive.router")
 public class ServiceRouterConfiguration {
     private List<ServiceConfig> services;
 

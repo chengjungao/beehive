@@ -1,0 +1,13 @@
+beehive:
+      router:
+        services:
+          - name: serviceTest
+            path: "/blog/${bogId}"
+            method: GET
+            timeout: 5000
+            maxTotal: 2
+            maxPerRoute: 1
+            maxRetry: 2
+            responseClass: java.lang.String
+            urls:
+              - http://www.chengjungao.cn

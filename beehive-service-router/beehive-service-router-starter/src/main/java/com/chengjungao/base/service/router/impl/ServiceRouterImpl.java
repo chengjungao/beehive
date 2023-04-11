@@ -37,9 +37,14 @@ public class ServiceRouterImpl implements ServiceRouter {
             throw new IllegalArgumentException("serviceName is not exist");
         }
         //merge params
-        params.addParam(serviceConfig.getParams());
+        if (serviceConfig.getParams() != null && serviceConfig.getParams().size() > 0) {
+            params.addParam(serviceConfig.getParams());
+        }
         ServiceClient<CloseableHttpClient> serviceClient = serviceClientFactory.getServiceClient(getPayload(params));
         Command<CloseableHttpClient> command = new Command<>(params, Method.getMethod(serviceConfig.getMethod()),serviceClient,serviceConfig.getPath());
+        if ("java.lang.String".equals(serviceConfig.getResponseClassName())){
+            return (T) command.execute();
+        }
         return (T)command.execute(serviceConfig.getResponseClass());
     }
 
@@ -55,7 +60,9 @@ public class ServiceRouterImpl implements ServiceRouter {
                 values.add(value.hashCode());
             }
         }
-        values.add(params.getBody().toString().hashCode());
+        if (params.getBody() != null){
+            values.add(params.getBody().toString().hashCode());
+        }
         return String.valueOf(values.hashCode());
     }
 

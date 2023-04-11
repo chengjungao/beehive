@@ -98,6 +98,10 @@ public class ServiceConfig {
         }
     }
 
+    public String getResponseClassName() {
+        return responseClass;
+    }
+
     public void setResponseClass(String responseClass) {
         this.responseClass = responseClass;
     }
