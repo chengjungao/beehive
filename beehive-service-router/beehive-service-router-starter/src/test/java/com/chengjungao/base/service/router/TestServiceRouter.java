@@ -2,6 +2,7 @@ package com.chengjungao.base.service.router;
 
 import com.chengjungao.base.service.Params;
 import com.chengjungao.base.service.params.CommonParams;
+import org.jsoup.nodes.Document;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,8 +26,8 @@ public class TestServiceRouter {
     public void test() {
         CommonParams params = new CommonParams();
         params.addParam("bogId", "11");
-        String res = serviceRouter.execute("serviceTest",params);
-        Assert.assertNotNull(res);
-        System.out.println(res);
+        Document res = serviceRouter.execute("serviceTest",params);
+        Assert.assertNotNull(res.title());
+        System.out.println(res.title());
     }
 }

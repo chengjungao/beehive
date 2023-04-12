@@ -8,6 +8,6 @@ beehive:
             maxTotal: 2
             maxPerRoute: 1
             maxRetry: 2
-            deserializeType: String
+            deserializeType: Xml
             urls:
               - http://www.chengjungao.cn

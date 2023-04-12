@@ -24,6 +24,8 @@ public class ServiceConfig {
 
     String responseClass;
 
+    String responseParser;
+
     List<String> urls;
 
     Map<String,Object> params;
@@ -114,6 +116,22 @@ public class ServiceConfig {
 
     public void setResponseClass(String responseClass) {
         this.responseClass = responseClass;
+    }
+
+    public String getResponseParser() {
+        return responseParser;
+    }
+
+    public void setResponseParser(String responseParser) {
+        this.responseParser = responseParser;
+    }
+
+    public Class<?> getResponseParserClass() {
+        try {
+            return Class.forName(responseParser);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("ResponseParser class not find!",e);
+        }
     }
 
     public List<String> getUrls() {

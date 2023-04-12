@@ -7,51 +7,44 @@
 * 支持多种负载均衡策略，默认使用一致性hash
 
 ## 使用示例
-
+### 配置文件
+参数说明：
+* name: 服务名称
+* path: 服务路径，支持变量
+* method: 请求方法，支持GET、POST、PUT、DELETE
+* timeout: 超时时间
+* maxTotal: 最大连接数
+* maxPerRoute: 每个路由的最大连接数
+* maxRetry: 最大重试次数
+* deserializeType: 反序列化响应类型，支持Json、Xml、String、Object
+  > 注意：com.chengjungao.base.service.autoconfigure.DeserializeType枚举类中的枚举值
+  
+```yaml
+beehive:
+  router:
+    services:
+      - name: serviceTest
+        path: "/blog/${bogId}"
+        method: GET
+        timeout: 5000
+        maxTotal: 2
+        maxPerRoute: 1
+        maxRetry: 2
+        deserializeType: Xml
+        urls:
+          - http://www.chengjungao.cn
+```
+### 代码使用示例
 ```java
-		List<String> nodeList = new ArrayList<>();
-		nodeList.add("redis://*.*.*.*:*");
-		RedisConfig redisConfig = new RedisConfig(nodeList, "TestRedis", 10, 5000, "****");
-				
-		CacheConfig cacheConfig = new CacheConfig("TestBusiness",redisConfig);
-		cache = new BeehiveCache<>(cacheConfig, new CacheLoader<String, String>() {
+  @Resource
+  private ServiceRouter serviceRouter;
 
-			@Override
-			public String load(String key) throws Exception {
-				BufferedReader in = null;
-				try {
-		            URL url = new URL(key);
-		            URLConnection urlConnection = url.openConnection();
-		            HttpURLConnection connection = null;
-		            if (urlConnection instanceof HttpURLConnection) {
-		                connection = (HttpURLConnection) urlConnection;
-		            } else {
-		                throw new RuntimeException("load error!" + key);
-		            }
-
-		            in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		            StringBuilder content = new StringBuilder();
-		            String current;
-
-		            while ((current = in.readLine()) != null) {
-		            	content.append(current);
-		            }
-		            return content.toString();
-		        } catch (IOException e) {
-		        	throw new RuntimeException("load error!" + key);
-		        }finally {
-					if (in != null) {
-						in.close();
-					}
-				}
-			}
-
-			@Override
-			public Map<String, String> loadAll(Iterable<? extends String> keys) {
-				throw new RuntimeException("LoadAll is not supported!");
-			}
-		});
-		
-		//获取缓存值
-		cache.get(new BeehiveCacheKey<String>("https://www.baidu.com/"));
+  @Test
+  public void test() {
+  CommonParams params = new CommonParams();
+  params.addParam("bogId", "11");
+  Document res = serviceRouter.execute("serviceTest",params);
+  Assert.assertNotNull(res.title());
+  System.out.println(res.title());
+}
 ```

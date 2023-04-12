@@ -45,11 +45,22 @@ public class ServiceRouterImpl implements ServiceRouter {
         switch (serviceConfig.getDeserializeType()){
             case String:
                 return (T) command.execute();
-            case Object:
+            case Json_Object:
+                if (serviceConfig.getResponseClass() == null)
+                    throw new IllegalArgumentException("responseClass is null");
                 return (T) command.execute(serviceConfig.getResponseClass());
             case Json:
                 return (T) command.execute(new ResponseParser.JsonResponseParser());
-
+            case Xml:
+                return (T) command.execute(new ResponseParser.XmlResponseParser());
+            case Object:
+                if (serviceConfig.getResponseParser() == null)
+                    throw new IllegalArgumentException("responseParser is null");
+                try {
+                    return (T) command.execute((ResponseParser<T>) serviceConfig.getResponseParserClass().newInstance());
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("responseParser class error!");
+                }
             default:
                 throw new RuntimeException("DeserializeType is not support");
         }
